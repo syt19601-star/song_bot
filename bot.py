@@ -1,8 +1,10 @@
 import os
 import asyncio
+from aiohttp import web
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
 from shazamio import Shazam
+
 
 # ضع توكن البوت الخاص بك هنا بين علامتي التنصيص
 TOKEN = "9064036231:AAHtb6MkWewNyfM7Ur2qDgvK_ZrVC_9ov6c"
@@ -65,8 +67,22 @@ async def handle_media(message: types.Message):
 
 async def main():
     print("Bot is running...")
+    await web_server()
     await dp.start_polling(bot)
+    
 
 if __name__ == "__main__":
     asyncio.run(main())
   
+async def handle(request):
+    return web.Response(text="Bot is running!")
+
+async def web_server():
+    app = web.Application()
+    app.router.add_get("/", handle)
+    runner = web.AppRunner(app)
+    await runner.setup()
+    port = int(os.environ.get("PORT", 10000))
+    site = web.TCPSite(runner, "0.0.0.0", port)
+    await site.start()
+    
